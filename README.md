@@ -34,22 +34,22 @@ per attribute and contain:
 
 Hence if your data dictionary contains:
 
-Table | Field | Type | File Name
--|-|-|-
-book | author | S | BF
-book | title | S | BF
-book | lid | I | BF
-patron | pid | I | PF
-patron | name | S | PF
+| Table  | Field  | Type | Name |
+|--------|--------|------|------|
+| book   | author | S    | BF   |
+| book   | title  | S    | BF   |
+| book   | lid    | I    | BF   |
+| patron | pid    | I    | PF   |
+| patron | name   | S    | PF   |
 
 the relation <b>book</b> will be stored in the file BF in the following manner:
 
-Author | Title | Lid
--|-|-
-Homer | Iliad | 0
-H. Melville | Moby Dick | 0
-G. Vidal | Julian | 7
-... | ... | ...
+| Author      | Title     | Lid |
+|-------------|-----------|-----|
+| Home        | Iliad     | 0   |
+| H. Melville | Moby Dick | 0   |
+| G. Vidal    | Julian    | 7   |
+| ...         | ...       | ... |
 
 ##### IMPORTANT
 
