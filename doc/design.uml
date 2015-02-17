@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="164.0" y="431.0">edu.zeebo.sp15.cosc6340.sql.Sql</node>
+    <node x="0.0" y="238.0">edu.zeebo.sp15.cosc6340.Table.TableIterator</node>
+    <node x="0.0" y="609.0">edu.zeebo.sp15.cosc6340.sql.Sql.From</node>
+    <node x="264.0" y="248.0">edu.zeebo.sp15.cosc6340.Table.Row</node>
+    <node x="406.0" y="619.0">edu.zeebo.sp15.cosc6340.sql.Sql.Select</node>
+    <node x="229.0" y="619.0">edu.zeebo.sp15.cosc6340.sql.Sql.Query</node>
+    <node x="90.0" y="0.0">edu.zeebo.sp15.cosc6340.Table</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="edu.zeebo.sp15.cosc6340.sql.Sql.Query" target="edu.zeebo.sp15.cosc6340.sql.Sql">
+      <point x="0.0" y="-24.0" />
+      <point x="0.0" y="64.0" />
+    </edge>
+    <edge source="edu.zeebo.sp15.cosc6340.Table.Row" target="edu.zeebo.sp15.cosc6340.Table">
+      <point x="0.0" y="-64.0" />
+      <point x="375.0" y="213.0" />
+      <point x="327.75" y="213.0" />
+      <point x="79.25" y="94.0" />
+    </edge>
+    <edge source="edu.zeebo.sp15.cosc6340.sql.Sql.From" target="edu.zeebo.sp15.cosc6340.sql.Sql">
+      <point x="0.0" y="-34.0" />
+      <point x="104.5" y="584.0" />
+      <point x="211.83333333333331" y="584.0" />
+      <point x="-95.66666666666669" y="64.0" />
+    </edge>
+    <edge source="edu.zeebo.sp15.cosc6340.Table.TableIterator" target="edu.zeebo.sp15.cosc6340.Table">
+      <point x="0.0" y="-74.0" />
+      <point x="122.0" y="213.0" />
+      <point x="169.25" y="213.0" />
+      <point x="-79.25" y="94.0" />
+    </edge>
+    <edge source="edu.zeebo.sp15.cosc6340.sql.Sql.Select" target="edu.zeebo.sp15.cosc6340.sql.Sql">
+      <point x="0.0" y="-24.0" />
+      <point x="476.0" y="584.0" />
+      <point x="403.1666666666667" y="584.0" />
+      <point x="95.66666666666669" y="64.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.3000000000000003" x="270.46153846153834" y="352.84615384615375" />
+  <SelectedNodes>
+    <node>edu.zeebo.sp15.cosc6340.Table.TableIterator</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
