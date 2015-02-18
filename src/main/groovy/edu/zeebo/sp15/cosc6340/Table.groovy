@@ -16,13 +16,20 @@ class Table {
 
 	Iterator<Row> iterator() { new TableIterator() }
 
-	void addRow(def values) {
+	void addRow(Object... values) {
 		Row row = new Row()
 		description.keySet().eachWithIndex { String field, int i ->
 			if (values.size() > i) {
 				switch (description[field]) {
 					case 'S': row[field] = values[i] as String; break
-					case 'I': row[field] = values[i] as Integer; break
+					case 'I':
+						try {
+							row[field] = values[i] as Integer
+						}
+						catch(NumberFormatException nfe) {
+							throw new IllegalArgumentException("Invalid field value: Field $field expects an int")
+						}
+						break
 				}
 			}
 		}
@@ -34,32 +41,45 @@ class Table {
 		}
 	}
 
+	// because you can't do tableObj.new Row() in Groovy :(
+	Row newRow() { new Row() }
+
 	class Row {
 		private LinkedHashMap contents = [:]
 
 		Row parse(String rowString) {
 			rowString.split('\0\0').each {
 				it.split('\0').with {
-					contents[it[0]] = it[1]
+					contents[it[0]] = parseField(it[0], it[1])
 				}
 			}
 			return this
 		}
 
-		def getAt(String fieldName) {
-			switch (description[fieldName]) {
-				case 'S': return getString(fieldName)
-				case 'I': return getInt(fieldName)
+		def parseField(String field, def value) {
+			if (value == 'null') {
+				return null
+			}
+
+			switch (description[field]) {
+				case 'S': return value as String
+				case 'I':
+					try {
+						return value as Integer
+					}
+					catch(NumberFormatException nfe) {
+						throw new IllegalArgumentException("Invalid field value: Field $field expects an int")
+					}
 			}
 		}
 
-		def putAt(String field, def value) {
-			contents[field] = value
+		def getAt(String field) {
+			contents[field]
 		}
 
-		Integer getInt(String fieldName) { contents[fieldName].with { it == 'null' ? null : it as Integer } }
-
-		String getString(String fieldName) { contents[fieldName] as String }
+		def putAt(String field, def value) {
+			contents[field] = parseField(field, value)
+		}
 	}
 
 	class TableIterator implements Iterator<Row> {
