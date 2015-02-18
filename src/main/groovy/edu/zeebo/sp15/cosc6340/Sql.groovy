@@ -1,4 +1,4 @@
-package edu.zeebo.sp15.cosc6340.sql
+package edu.zeebo.sp15.cosc6340
 
 import edu.zeebo.sp15.cosc6340.Table
 
