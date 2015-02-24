@@ -39,6 +39,19 @@ class Table {
 				[field, row[field]].join('\0')
 			}.join('\0\0')
 		}
+		size++
+	}
+
+	private int size
+
+	int getSize() {
+		if (size == 0) {
+			File file = new File(filename)
+			if (file.exists()) {
+				size = file.readLines().size()
+			}
+		}
+		return size
 	}
 
 	// because you can't do tableObj.new Row() in Groovy :(
