@@ -1,6 +1,8 @@
 package edu.zeebo.sp15.cosc6340;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Eric
@@ -12,50 +14,99 @@ public class SimpleDatabase
 	public static void main(String[] args)
     {
         Scanner s = new Scanner(System.in);
-        ArrayList<String> query = new ArrayList<String>();
 
         boolean running = true;
 
         while(running)
         {
-            query.clear();
             String inputQuery = "";
-            System.out.println("Please enter your command");
+            System.out.println();
+            System.out.println("Please enter your command (Press Q to Quit)");
 
             inputQuery = s.nextLine();
+            if(inputQuery.toUpperCase().equals("Q")) {
+                running = false;
+                break;
+            }
 
-            query.addAll(ParseString(inputQuery));
+            ParseString(inputQuery);
 
-            InterpretQuery(query);
-            PrintTable();
+
         }
 	}
 
-    public static void InterpretQuery(ArrayList<String> query)
+    public static void ParseString(String inputQuery)
     {
-        String select = "SELECT";
-        String create = "CREATE";
-        String insert = "INSERT INTO";
+        Pattern p = null;
+        Matcher m = null;
+        //regexes
+        String select = "SELECT\\s+(\\w+),*\\s*(\\w*)\\s+FROM\\s+(\\w+)(,\\s+(\\w+))*\\s*(WHERE\\s+(\\w+)\\s*=\\s*\"*\\w+\"*)*";
+        String selectAll = "SELECT\\s+\\*\\s+FROM\\s+(\\w+)(,\\s+(\\w+))*\\s+(WHERE\\s+(\\w+)\\s*=\\s*\"*\\w+\"*)*";
+        String createTable = "CREATE\\s+(\\w+\\s+)\\((\\w+\\s+(INT|STRING),*\\s*)+\\)";
+        String insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\((\"*\\w+\\\"*,*\\s*)+\\)";
 
-        //Check syntax and semantics
-        //Eric, what do you need me to return to you so that you can execute the command?
-    }
 
-    public static ArrayList<String> ParseString(String inputQuery)
-    {
-        //break up string into array
-        Scanner input = new Scanner(inputQuery);
-        ArrayList<String> brokenUpQuery = new ArrayList<String>();
-        while(input.hasNext())
+        if(inputQuery.matches(select))
         {
-            brokenUpQuery.add(input.next());
+            //group 1 selected fields
+            //group 2 from field 1
+            //group 3 from field 2
+            //group 4 table name
+            //group 5 where variable
+            p = Pattern.compile(select);
+            m = p.matcher(inputQuery);
+            while(m.find())
+            {
+                for(int i = 0; i < m.groupCount(); i++){
+                    System.out.println("Group "+ i +":" + m.group(i));
+                }
+            }
+            System.out.println("Good Query: " + inputQuery);
         }
-        //FOR DEBUGGING
-        for (int i = 0; i < brokenUpQuery.size(); i++)
+        else if (inputQuery.matches(selectAll))
         {
-            System.out.println(brokenUpQuery.get(i));
+            //group 1 from fields
+            //group 2 where clause
+            p = Pattern.compile(selectAll);
+            m = p.matcher(inputQuery);
+            while(m.find())
+            {
+                for(int i = 0; i < m.groupCount(); i++){
+                    System.out.println("Group "+ i +":" + m.group(i));
+                }
+            }
+            System.out.println("Good Query: " + inputQuery);
+
         }
-        return brokenUpQuery;
+        else if(inputQuery.matches(createTable))
+        {
+            //group 1 table name
+            //group 2 column names and types
+            p = Pattern.compile(createTable);
+            m = p.matcher(inputQuery);
+            while(m.find())
+            {
+                for(int i = 0; i < m.groupCount(); i++){
+                    System.out.println("Group "+ i +":" + m.group(i));
+                }
+            }
+            System.out.println("Good Query: " + inputQuery);
+        }
+        else if(inputQuery.matches(insertInto))
+        {
+            p = Pattern.compile(insertInto);
+            m = p.matcher(inputQuery);
+            while(m.find())
+            {
+                for(int i = 0; i < m.groupCount(); i++){
+                    System.out.println("Group "+ i +":" + m.group(i));
+                }
+            }
+            System.out.println("Good Query: " + inputQuery);
+
+        }
+        else { ThrowSyntaxError(inputQuery);}
+
     }
 
     public static void PrintTable()
@@ -86,6 +137,6 @@ public class SimpleDatabase
 
     public static void ThrowSyntaxError(String query)
     {
-        System.out.println("You have a syntax error: " + query);
+        System.out.println("Invalid Command: " + query);
     }
 }
