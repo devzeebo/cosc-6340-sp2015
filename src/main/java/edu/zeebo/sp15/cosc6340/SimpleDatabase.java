@@ -57,14 +57,14 @@ public class SimpleDatabase
                 fields = m.group(1);
                 table = m.group(2);
                 //FOR Debugging
-                //for(int i = 0; i < m.groupCount(); i++){
+                //for(int i = 0; i < m.groupCount(); i++)
                     //System.out.println("Group "+ i +":" + m.group(i));
-                //}
             }
 
             values = Arrays.asList(fields.split("\\s*,\\s*"));
 
 	        System.out.println(Sql.printResults(table, Sql.select(values).from(Arrays.asList(table)).execute()));
+            System.out.println(Sql.printTable(table));
         }
         else if (inputQuery.matches(selectAll))
         {
@@ -89,9 +89,9 @@ public class SimpleDatabase
             }
             tableNames = Arrays.asList(tables.split("\\s*,\\s*"));
 	        System.out.println(Sql.printResults("Results", Sql.select(Arrays.asList("*")).from(tableNames).where(field, value).execute()));
-//            for (int i = 0; i < tableNames.size(); i++) {
-//	            System.out.println(Sql.printTable(tableNames.get(i)));
-//            }
+            for (int i = 0; i < tableNames.size(); i++)
+	            System.out.println(Sql.printTable(tableNames.get(i)));
+
         }
         else if(inputQuery.matches(createTable))
         {
@@ -110,9 +110,9 @@ public class SimpleDatabase
             {
                 tableName = m.group(1);
                 fieldN = m.group(2);
-                //for debugging
-                for(int i = 0; i < m.groupCount(); i++)
-                    System.out.println("Group "+ i +":" + m.group(i));
+                //FOR DEBUGGING
+                //for(int i = 0; i < m.groupCount(); i++)
+                    //System.out.println("Group "+ i +":" + m.group(i));
             }
 
             fields = Arrays.asList(fieldN.split("\\s*,\\s*"));
@@ -136,9 +136,8 @@ public class SimpleDatabase
             m = p.matcher(inputQuery);
             while(m.find())
             {
-                for(int i = 0; i < m.groupCount(); i++){
-                    System.out.println("Group "+ i +":" + m.group(i));
-                }
+                //for(int i = 0; i < m.groupCount(); i++)
+                    //System.out.println("Group "+ i +":" + m.group(i));
 	            tableName = m.group(1);
 	            fields = m.group(2);
             }
