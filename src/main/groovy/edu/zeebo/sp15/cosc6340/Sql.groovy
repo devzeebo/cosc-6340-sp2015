@@ -77,6 +77,23 @@ class Sql {
 		tables[name].addRow values
 	}
 
+
+	static String printTable(String tableName) {
+
+		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, 0] }
+		tables[tableName].each { row ->
+			tables[tableName].description.keySet().each { field ->
+				widths[field] = Math.max("${row[field]}".length(), widths[field])
+			}
+		}
+
+		int width = widths.values().sum() + widths.size() - 1
+		int padding = (widths.values().sum() - tableName.length()) / 2
+		StringBuilder builder = new StringBuilder("|${' ' * padding}$tableName${' ' * (width - padding - tableName.length())}|\n")
+		builder.append "\u0195${'\u0196' * width}\u0180\n"
+		return builder.toString()
+	}
+
 	static class Query {
 
 		private Table table
