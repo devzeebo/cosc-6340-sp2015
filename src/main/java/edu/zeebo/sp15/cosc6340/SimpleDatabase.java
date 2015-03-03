@@ -65,6 +65,7 @@ public class SimpleDatabase
             values = Arrays.asList(fields.split("\\s*,\\s*"));
 
             Sql.select(values).from(Arrays.asList(table)).execute();
+            Sql.printTable(table);
         }
         else if (inputQuery.matches(selectAll))
         {
@@ -89,6 +90,9 @@ public class SimpleDatabase
             }
             tableNames = Arrays.asList(tables.split("\\s*,\\s*"));
             Sql.select(Arrays.asList("*")).from(tableNames).where(field, value).execute();
+            for (int i = 0; i < tableNames.size(); i++) {
+                Sql.printTable(tableNames.get(i));
+            }
         }
         else if(inputQuery.matches(createTable))
         {
@@ -120,6 +124,7 @@ public class SimpleDatabase
             }
 
             Sql.createTable(tableName, map);
+            Sql.printTable(tableName);
         }
         else if(inputQuery.matches(insertInto))
         {
@@ -138,6 +143,7 @@ public class SimpleDatabase
             }
             values = Arrays.asList(fields.split("\"*\\s*,\\s*"));
             Sql.insertInto(tableName, values);
+            Sql.printTable(tableName);
         }
         else { ThrowSyntaxError(inputQuery);}
 
