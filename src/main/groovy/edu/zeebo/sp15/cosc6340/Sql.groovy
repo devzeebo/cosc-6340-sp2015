@@ -150,13 +150,17 @@ class Sql {
 				def implicitAddJoinFields = joinOn.values().collectEntries {
 					[(it), !fields.contains(it)]
 				}
+
 				def allFields = [fields, joinOn.values()].flatten().unique()
-				def tableResults = Sql.select(* allFields) // project the fields and join fields
-						.from(smallestTable.name) // from the smallest table
+				if (allFields.contains("*")) {
+					allFields = ["*"]
+				}
+				def tableResults = Sql.select(allFields) // project the fields and join fields
+						.from([smallestTable.name]) // from the smallest table
 						.execute()
 						.collect { row -> // and join those
-					Sql.select(* allFields) // with the fields and join fields
-							.from(otherTable.name) // from the other table
+					Sql.select(allFields) // with the fields and join fields
+							.from([otherTable.name]) // from the other table
 							.where(joinOn[otherTable], row[joinOn[smallestTable]]) // where they join fields are equal
 							.execute()
 							.collect { it.putAll row; it } // and put the two maps together
@@ -181,8 +185,8 @@ class Sql {
 					// do for both key and value (both field names)
 					[key, value].each {
 						joinOn[joinOn.keySet().find { Table table ->
-							// find the table that has the field
-							table.description.keySet().contains(it)
+							// find the table that has the field and doesn't have a joinOn assigned yet
+							joinOn[table] == null && table.description.keySet().contains(it)
 						}] = it // set the table to join on the field
 					}
 				}
@@ -213,7 +217,7 @@ class Sql {
 
 		private Query query
 
-		Query where(String field, String value) {
+		Query where(String field, def value) {
 			// set the where clause
 			query.where = [(field): value]
 			return query
