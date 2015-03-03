@@ -16,10 +16,11 @@ class Table {
 
 	Iterator<Row> iterator() { new TableIterator() }
 
-	void addRow(Object... values) {
+	void addRow(List values) {
 		Row row = new Row()
 		description.keySet().eachWithIndex { String field, int i ->
 			if (values.size() > i) {
+				println values[i]
 				switch (description[field]) {
 					case 'S': row[field] = values[i] as String; break
 					case 'I':
@@ -33,6 +34,9 @@ class Table {
 				}
 			}
 		}
+
+		println filename
+		println row.contents
 
 		new File(filename).withWriterAppend {
 			it.println description.keySet().findAll { String field -> row[field] }.collect { String field ->
@@ -61,6 +65,7 @@ class Table {
 		private LinkedHashMap contents = [:]
 
 		Row parse(String rowString) {
+			println rowString
 			rowString.split('\0\0').each {
 				it.split('\0').with {
 					contents[it[0]] = parseField(it[0], it[1])

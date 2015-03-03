@@ -101,7 +101,7 @@ public class SimpleDatabase
             //group 2 column names and types
             String tableName = "";
             String fieldN = "";
-            Map<String, String> map = new HashMap<String, String>();
+            Map<String, String> map = new LinkedHashMap<String, String>();
             List<String> fields;
             p = Pattern.compile(createTable);
             m = p.matcher(inputQuery);
@@ -120,15 +120,15 @@ public class SimpleDatabase
             for (int i = 0; i < fields.size(); i++) {
                 String field = fields.get(i);
                 List<String> fieldAndType = Arrays.asList(field.split("\\s+"));
-                map.put(fieldAndType.get(1), fieldAndType.get(0));
+                map.put(fieldAndType.get(0), fieldAndType.get(1));
             }
 
-            Sql.createTable(tableName, map);
+	        Sql.createTable(tableName, map);
 			System.out.println(Sql.printTable(tableName));
         }
         else if(inputQuery.matches(insertInto))
         {
-            insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\(((.*))\\)";
+            insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\(((.*?))\\)";
             String tableName = "";
             String fields = "";
             List<String> values;
@@ -140,8 +140,11 @@ public class SimpleDatabase
                 for(int i = 0; i < m.groupCount(); i++){
                     System.out.println("Group "+ i +":" + m.group(i));
                 }
+	            tableName = m.group(1);
+	            fields = m.group(2);
             }
-            values = Arrays.asList(fields.split("\"*\\s*,\\s*"));
+            values = Arrays.asList(fields.replace("\"", "").split("\\s*,\\s*"));
+
             Sql.insertInto(tableName, values);
 			System.out.println(Sql.printTable(tableName));
         }

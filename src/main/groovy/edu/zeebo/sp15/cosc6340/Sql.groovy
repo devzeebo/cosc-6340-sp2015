@@ -1,7 +1,5 @@
 package edu.zeebo.sp15.cosc6340
 
-import edu.zeebo.sp15.cosc6340.Table
-
 /**
  * User: Eric
  * Date: 2/17/15
@@ -59,7 +57,7 @@ class Sql {
 			tables.each { name, value ->
 				// iterate over each field in the table
 				value.description.each { field, type ->
-					writer.println "$name\0\0$field\0\0$type\0\0$value.filename"
+					writer.println "$name\0\0$field\0\0$type\0\0${value.filename}"
 				}
 			}
 		}
@@ -70,7 +68,7 @@ class Sql {
 	}
 
 	static void createTable(String name, Map<String, String> fields) {
-		tables[name].description = fields
+		tables[name].description = fields.collectEntries { key, value -> [key, value[0]] }
 	}
 
 	static void insertInto(String name, List<String> values) {
@@ -84,12 +82,14 @@ class Sql {
 			return "$tableName\nEMPTY\n"
 		}
 
-		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, 0] }
+		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, field.length() + 2] }
+		println widths
 		tables[tableName].each { row ->
 			tables[tableName].description.keySet().each { field ->
 				widths[field] = Math.max("${row[field]}".length() + 2, widths[field])
 			}
 		}
+		println widths
 
 		int width = widths.values().sum() + widths.size() - 1
 		int padding = (widths.values().sum() - tableName.length()) / 2
