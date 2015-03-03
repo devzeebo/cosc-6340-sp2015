@@ -77,6 +77,17 @@ class Sql {
 		tables[name].addRow values
 	}
 
+	static String printTable(String tableName) {
+		StringBuilder builder = new StringBuilder("Rows in $tableName (")
+		builder.append tables[tableName].description.keySet().join(',')
+		builder.append ')\n'
+		builder.append tables[tableName].collect { Table.Row row ->
+			tables[tableName].description.keySet().collect { row[it] }.join(',')
+		}.join('\n')
+
+		return builder.toString()
+	}
+
 	static class Query {
 
 		private Table table
@@ -187,9 +198,10 @@ class Sql {
 	}
 
 	public static void main(String[] args) {
-		Sql.createTable('book', [title: 'S', author: 'S'])
-		Sql.createTable('author', [name: 'S', age: 'I'])
-
-		println Sql.select('title', 'age').from('book', 'author').where('author', 'name').execute()
+//		Sql.createTable('book', [title: 'S', author: 'S'])
+//		Sql.createTable('author', [name: 'S', age: 'I'])
+//
+//
+		println Sql.printTable('book')
 	}
 }
