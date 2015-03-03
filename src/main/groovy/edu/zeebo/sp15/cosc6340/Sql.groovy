@@ -77,44 +77,41 @@ class Sql {
 
 
 	static String printTable(String tableName) {
-
-		if (tables[tableName].size == 0) {
-			return "$tableName\nEMPTY\n"
-		}
-
 		return printResults(tableName, select(['*']).from([tableName]).execute())
 	}
 
 	static String printResults(String title, List<Map> results) {
-		println results
-		def widths = results[0].keySet().collectEntries { field -> [field, field.length() + 2] }
-		results.each { row ->
-			row.keySet().each { field ->
-				widths[field] = Math.max("${row[field]}".length() + 2, widths[field])
-			}
-		}
-		println widths
 
-		int width = widths.values().sum() + widths.size() - 1
-		int padding = (widths.values().sum() - title.length()) / 2
-		StringBuilder builder = new StringBuilder("|${widths.values().collect { '-' * it }.join('-')}|\n")
-		builder.append "|${' ' * padding}$title${' ' * (width - padding - title.length())}|\n"
-		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
-		builder.append "|"
-		builder.append widths.collect { field, w ->
-			String.format(" %-${w - 2}s ", field)
-		}.join('|')
-		builder.append "|\n"
-		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
-		results.each { row ->
-			builder.append '|'
+		if (results.size()) {
+			def widths = results[0].keySet().collectEntries { field -> [field, field.length() + 2] }
+			results.each { row ->
+				row.keySet().each { field ->
+					widths[field] = Math.max("${row[field]}".length() + 2, widths[field])
+				}
+			}
+
+			int width = widths.values().sum() + widths.size() - 1
+			int padding = (widths.values().sum() - title.length()) / 2
+			StringBuilder builder = new StringBuilder("|${widths.values().collect { '-' * it }.join('-')}|\n")
+			builder.append "|${' ' * padding}$title${' ' * (width - padding - title.length())}|\n"
+			builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
+			builder.append "|"
 			builder.append widths.collect { field, w ->
-				String.format(" %-${w - 2}s ", row[field])
+				String.format(" %-${w - 2}s ", field)
 			}.join('|')
 			builder.append "|\n"
+			builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
+			results.each { row ->
+				builder.append '|'
+				builder.append widths.collect { field, w ->
+					String.format(" %-${w - 2}s ", row[field])
+				}.join('|')
+				builder.append "|\n"
+			}
+			builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
+			return builder.toString()
 		}
-		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
-		return builder.toString()
+		return "$title\nEMPTY\n"
 	}
 
 	static class Query {
