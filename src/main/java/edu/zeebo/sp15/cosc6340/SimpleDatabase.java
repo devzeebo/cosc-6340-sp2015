@@ -1,5 +1,4 @@
 package edu.zeebo.sp15.cosc6340;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,8 +29,6 @@ public class SimpleDatabase
             }
 
             ParseString(inputQuery);
-
-
         }
 	}
 
@@ -40,60 +37,97 @@ public class SimpleDatabase
         Pattern p = null;
         Matcher m = null;
         //regexes
-        String select = "SELECT\\s+(\\w+),*\\s*(\\w*)\\s+FROM\\s+(\\w+)(,\\s+(\\w+))*\\s*(WHERE\\s+(\\w+)\\s*=\\s*\"*\\w+\"*)*";
-        String selectAll = "SELECT\\s+\\*\\s+FROM\\s+(\\w+)(,\\s+(\\w+))*\\s+(WHERE\\s+(\\w+)\\s*=\\s*\"*\\w+\"*)*";
+        String select = "SELECT\\s+(\\w+),*\\s*(.*)\\s+FROM\\s+((\\w+)).*";
+        String selectAll = "SELECT\\s+\\*\\s+FROM\\s+(.*).*\\s+WHERE\\s+(\\w+)\\s*=\\s*((\\\"*\\w+\\\"*))";
         String createTable = "CREATE\\s+(\\w+\\s+)\\((\\w+\\s+(INT|STRING),*\\s*)+\\)";
         String insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\((\"*\\w+\\\"*,*\\s*)+\\)";
 
-
         if(inputQuery.matches(select))
         {
-            //group 1 selected fields
-            //group 2 from field 1
-            //group 3 from field 2
-            //group 4 table name
-            //group 5 where variable
+            select = "SELECT\\s+(.*)\\s+FROM\\s+((\\w+)).*";
+            //group 1 fields
+            //group 2 table name
+            String fields = "";
+            String table = "";
+            List<String> values;
             p = Pattern.compile(select);
             m = p.matcher(inputQuery);
             while(m.find())
             {
-                for(int i = 0; i < m.groupCount(); i++){
-                    System.out.println("Group "+ i +":" + m.group(i));
-                }
+                fields = m.group(1);
+                table = m.group(2);
+                //FOR Debugging
+                //for(int i = 0; i < m.groupCount(); i++){
+                    //System.out.println("Group "+ i +":" + m.group(i));
+                //}
             }
-            System.out.println("Good Query: " + inputQuery);
+
+            values = Arrays.asList(fields.split("\\s*,\\s*"));
+
+            Sql.select(values).from(Arrays.asList(table)).execute();
         }
         else if (inputQuery.matches(selectAll))
         {
-            //group 1 from fields
-            //group 2 where clause
+            //group 1 table names
+            //group 2 where 1
+            //group 3 where 2
+            List<String> tableNames;
+            String tables = "";
+            String field = "";
+            String value = "";
             p = Pattern.compile(selectAll);
             m = p.matcher(inputQuery);
             while(m.find())
             {
-                for(int i = 0; i < m.groupCount(); i++){
-                    System.out.println("Group "+ i +":" + m.group(i));
-                }
+                //FOR DEBUGGING
+                //for(int i = 0; i < m.groupCount(); i++){
+                    //System.out.println("Group "+ i +":" + m.group(i));
+                //}
+                tables = m.group(1);
+                field = m.group(2);
+                value = m.group(3);
             }
-            System.out.println("Good Query: " + inputQuery);
-
+            tableNames = Arrays.asList(tables.split("\\s*,\\s*"));
+            Sql.select(Arrays.asList("*")).from(tableNames).where(field, value).execute();
         }
         else if(inputQuery.matches(createTable))
         {
+            createTable = "CREATE\\s+(\\w+)\\s+\\(((.*))\\)";
             //group 1 table name
             //group 2 column names and types
+            String tableName = "";
+            String fieldN = "";
+            Map<String, String> map = new HashMap<String, String>();
+            List<String> fields;
             p = Pattern.compile(createTable);
             m = p.matcher(inputQuery);
+
+            //for debugging
             while(m.find())
             {
-                for(int i = 0; i < m.groupCount(); i++){
+                tableName = m.group(1);
+                fieldN = m.group(2);
+                //for debugging
+                for(int i = 0; i < m.groupCount(); i++)
                     System.out.println("Group "+ i +":" + m.group(i));
-                }
             }
-            System.out.println("Good Query: " + inputQuery);
+
+            fields = Arrays.asList(fieldN.split("\\s*,\\s*"));
+            for (int i = 0; i < fields.size(); i++) {
+                String field = fields.get(i);
+                List<String> fieldAndType = Arrays.asList(field.split("\\s+"));
+                map.put(fieldAndType.get(1), fieldAndType.get(0));
+            }
+
+            Sql.createTable(tableName, map);
         }
         else if(inputQuery.matches(insertInto))
         {
+            insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\(((.*))\\)";
+            String tableName = "";
+            String fields = "";
+            List<String> values;
+
             p = Pattern.compile(insertInto);
             m = p.matcher(inputQuery);
             while(m.find())
@@ -102,37 +136,11 @@ public class SimpleDatabase
                     System.out.println("Group "+ i +":" + m.group(i));
                 }
             }
-            System.out.println("Good Query: " + inputQuery);
-
+            values = Arrays.asList(fields.split("\"*\\s*,\\s*"));
+            Sql.insertInto(tableName, values);
         }
         else { ThrowSyntaxError(inputQuery);}
 
-    }
-
-    public static void PrintTable()
-    {
-        ArrayList<ArrayList<String>> table = new ArrayList<ArrayList<String>>();
-        //LOAD TABLE TO DATA STRUCTURE HERE?
-        
-        int rows = 5; //table.size();
-        int columns = 5; //table.get(i).size()
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                System.out.print("+----------");//change this to not be hard coded?
-            }
-            System.out.println("+");
-
-            for(int k = 0; k < columns; k++){
-                //print tuple value here
-                System.out.print("|" + "tupleValue");
-            }
-            System.out.println("|");
-        }
-        for (int l = 0; l < columns; l++) {
-            System.out.print("+----------");
-        }
-        System.out.println("+");
     }
 
     public static void ThrowSyntaxError(String query)

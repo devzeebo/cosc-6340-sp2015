@@ -65,7 +65,7 @@ class Sql {
 		}
 	}
 
-	static Select select(String... fields) {
+	static Select select(List<String> fields) {
 		return new Select(query: new Query(fields: fields))
 	}
 
@@ -73,19 +73,8 @@ class Sql {
 		tables[name].description = fields
 	}
 
-	static void insertInto(String name, Object... values) {
+	static void insertInto(String name, List<String> values) {
 		tables[name].addRow values
-	}
-
-	static String printTable(String tableName) {
-		StringBuilder builder = new StringBuilder("Rows in $tableName (")
-		builder.append tables[tableName].description.keySet().join(',')
-		builder.append ')\n'
-		builder.append tables[tableName].collect { Table.Row row ->
-			tables[tableName].description.keySet().collect { row[it] }.join(',')
-		}.join('\n')
-
-		return builder.toString()
 	}
 
 	static class Query {
@@ -169,7 +158,7 @@ class Sql {
 
 		private Query query
 
-		From from(String... tableNames) {
+		From from(List<String> tableNames) {
 			if (tableNames.size() == 1) {
 				query.table = tables[tableNames[0]]
 				if (query.fields == ['*']) { // All fields requested
@@ -197,11 +186,10 @@ class Sql {
 		List<Map> execute() { query.execute() }
 	}
 
-	public static void main(String[] args) {
-//		Sql.createTable('book', [title: 'S', author: 'S'])
-//		Sql.createTable('author', [name: 'S', age: 'I'])
-//
-//
-		println Sql.printTable('book')
-	}
+	//public static void main(String[] args) {
+		//Sql.createTable('book', [title: 'S', author: 'S'])
+		//Sql.createTable('author', [name: 'S', age: 'I'])
+
+		//println Sql.select('title', 'age').from('book', 'author').where('author', 'name').execute()
+	//}
 }
