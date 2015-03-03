@@ -82,19 +82,23 @@ class Sql {
 			return "$tableName\nEMPTY\n"
 		}
 
-		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, field.length() + 2] }
-		println widths
-		tables[tableName].each { row ->
-			tables[tableName].description.keySet().each { field ->
+		return printResults(tableName, select(['*']).from([tableName]).execute())
+	}
+
+	static String printResults(String title, List<Map> results) {
+		println results
+		def widths = results[0].keySet().collectEntries { field -> [field, field.length() + 2] }
+		results.each { row ->
+			row.keySet().each { field ->
 				widths[field] = Math.max("${row[field]}".length() + 2, widths[field])
 			}
 		}
 		println widths
 
 		int width = widths.values().sum() + widths.size() - 1
-		int padding = (widths.values().sum() - tableName.length()) / 2
+		int padding = (widths.values().sum() - title.length()) / 2
 		StringBuilder builder = new StringBuilder("|${widths.values().collect { '-' * it }.join('-')}|\n")
-		builder.append "|${' ' * padding}$tableName${' ' * (width - padding - tableName.length())}|\n"
+		builder.append "|${' ' * padding}$title${' ' * (width - padding - title.length())}|\n"
 		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
 		builder.append "|"
 		builder.append widths.collect { field, w ->
@@ -102,7 +106,7 @@ class Sql {
 		}.join('|')
 		builder.append "|\n"
 		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
-		tables[tableName].each { row ->
+		results.each { row ->
 			builder.append '|'
 			builder.append widths.collect { field, w ->
 				String.format(" %-${w - 2}s ", row[field])
@@ -123,6 +127,8 @@ class Sql {
 
 		List<Map> execute() {
 
+			println fields
+			println where
 			table.collect { row -> // projection transformation
 				fields.findAll { row[it] }.collectEntries { // into a map of field: value pairs
 					[(it): row[it]]
@@ -147,11 +153,13 @@ class Sql {
 				Table smallestTable = joinOn.keySet().min { it.size }
 				Table otherTable = (joinOn.keySet() - smallestTable).first()
 
+				println fields
 				def implicitAddJoinFields = joinOn.values().collectEntries {
 					[(it), !fields.contains(it)]
 				}
-
 				def allFields = [fields, joinOn.values()].flatten().unique()
+
+				println implicitAddJoinFields
 				if (allFields.contains("*")) {
 					allFields = ["*"]
 				}
@@ -168,7 +176,7 @@ class Sql {
 
 				if (implicitAddJoinFields.values().contains(true)) {
 					implicitAddJoinFields.each { field, remove ->
-						if (remove) {
+						if (!remove) {
 							tableResults.each {
 								it.remove(field)
 							}

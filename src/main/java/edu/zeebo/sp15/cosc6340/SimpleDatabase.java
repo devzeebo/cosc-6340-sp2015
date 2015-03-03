@@ -38,7 +38,7 @@ public class SimpleDatabase
         Matcher m = null;
         //regexes
         String select = "SELECT\\s+(\\w+),*\\s*(.*)\\s+FROM\\s+((\\w+)).*";
-        String selectAll = "SELECT\\s+\\*\\s+FROM\\s+(.*).*\\s+WHERE\\s+(\\w+)\\s*=\\s*((\\\"*\\w+\\\"*))";
+        String selectAll = "SELECT\\s+\\*\\s+FROM\\s+(.*).*\\s+WHERE\\s+(\\w+)\\s*=\\s*\\\"?(\\w+)\\\"?";
         String createTable = "CREATE\\s+(\\w+\\s+)\\((\\w+\\s+(INT|STRING),*\\s*)+\\)";
         String insertInto = "INSERT\\s+INTO\\s+(\\w+)\\s+\\((\"*\\w+\\\"*,*\\s*)+\\)";
 
@@ -64,8 +64,7 @@ public class SimpleDatabase
 
             values = Arrays.asList(fields.split("\\s*,\\s*"));
 
-            Sql.select(values).from(Arrays.asList(table)).execute();
-	        System.out.println(Sql.printTable(table));
+	        System.out.println(Sql.printResults(table, Sql.select(values).from(Arrays.asList(table)).execute()));
         }
         else if (inputQuery.matches(selectAll))
         {
@@ -89,10 +88,10 @@ public class SimpleDatabase
                 value = m.group(3);
             }
             tableNames = Arrays.asList(tables.split("\\s*,\\s*"));
-            Sql.select(Arrays.asList("*")).from(tableNames).where(field, value).execute();
-            for (int i = 0; i < tableNames.size(); i++) {
-	            System.out.println(Sql.printTable(tableNames.get(i)));
-            }
+	        System.out.println(Sql.printResults("Results", Sql.select(Arrays.asList("*")).from(tableNames).where(field, value).execute()));
+//            for (int i = 0; i < tableNames.size(); i++) {
+//	            System.out.println(Sql.printTable(tableNames.get(i)));
+//            }
         }
         else if(inputQuery.matches(createTable))
         {
