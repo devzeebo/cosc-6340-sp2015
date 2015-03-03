@@ -97,11 +97,19 @@ class Table {
 
 	class TableIterator implements Iterator<Row> {
 
-		Scanner scan = new Scanner(new File(filename))
+		Scanner scan
+
+		public TableIterator() {
+			new File(filename).with {
+				if (it.exists()) {
+					scan = new Scanner(it)
+				}
+			}
+		}
 
 		@Override
 		boolean hasNext() {
-			return scan.hasNextLine()
+			return scan != null && scan.hasNextLine()
 		}
 
 		@Override

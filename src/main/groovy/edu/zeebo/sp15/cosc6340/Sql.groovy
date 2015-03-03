@@ -80,6 +80,9 @@ class Sql {
 
 	static String printTable(String tableName) {
 
+		if (tables[tableName].size == 0) {
+			return "$tableName\nEMPTY\n"
+		}
 		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, 0] }
 		tables[tableName].each { row ->
 			tables[tableName].description.keySet().each { field ->
