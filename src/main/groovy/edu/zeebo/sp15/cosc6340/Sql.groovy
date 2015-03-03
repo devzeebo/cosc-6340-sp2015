@@ -75,7 +75,6 @@ class Sql {
 		tables[name].addRow values
 	}
 
-
 	static String printTable(String tableName) {
 		return printResults(tableName, select(['*']).from([tableName]).execute())
 	}
@@ -139,61 +138,61 @@ class Sql {
 				}
 			}
 		}
+	}
 
-		static class ImplicitJoinQuery extends Query {
+	static class ImplicitJoinQuery extends Query {
 
-			private def joinOn
+		def joinOn
 
-			List<Map> execute() {
+		List<Map> execute() {
 
-				// select all the entries in the smallest table
-				Table smallestTable = joinOn.keySet().min { it.size }
-				Table otherTable = (joinOn.keySet() - smallestTable).first()
+			// select all the entries in the smallest table
+			Table smallestTable = joinOn.keySet().min { it.size }
+			Table otherTable = (joinOn.keySet() - smallestTable).first()
 
-				println fields
-				def implicitAddJoinFields = joinOn.values().collectEntries {
-					[(it), !fields.contains(it)]
-				}
-				def allFields = [fields, joinOn.values()].flatten().unique()
+			println fields
+			def implicitAddJoinFields = joinOn.values().collectEntries {
+				[(it), !fields.contains(it)]
+			}
+			def allFields = [fields, joinOn.values()].flatten().unique()
 
-				println implicitAddJoinFields
-				if (allFields.contains("*")) {
-					allFields = ["*"]
-				}
-				def tableResults = Sql.select(allFields) // project the fields and join fields
-						.from([smallestTable.name]) // from the smallest table
+			println implicitAddJoinFields
+			if (allFields.contains("*")) {
+				allFields = ["*"]
+			}
+			def tableResults = Sql.select(allFields) // project the fields and join fields
+					.from([smallestTable.name]) // from the smallest table
+					.execute()
+					.collect { row -> // and join those
+				Sql.select(allFields) // with the fields and join fields
+						.from([otherTable.name]) // from the other table
+						.where(joinOn[otherTable], row[joinOn[smallestTable]]) // where they join fields are equal
 						.execute()
-						.collect { row -> // and join those
-					Sql.select(allFields) // with the fields and join fields
-							.from([otherTable.name]) // from the other table
-							.where(joinOn[otherTable], row[joinOn[smallestTable]]) // where they join fields are equal
-							.execute()
-							.collect { it.putAll row; it } // and put the two maps together
-				}.flatten() // and flatten the list of lists
+						.collect { it.putAll row; it } // and put the two maps together
+			}.flatten() // and flatten the list of lists
 
-				if (implicitAddJoinFields.values().contains(true)) {
-					implicitAddJoinFields.each { field, remove ->
-						if (!remove) {
-							tableResults.each {
-								it.remove(field)
-							}
+			if (implicitAddJoinFields.values().contains(true)) {
+				implicitAddJoinFields.each { field, remove ->
+					if (!remove) {
+						tableResults.each {
+							it.remove(field)
 						}
 					}
 				}
-
-				return tableResults
 			}
 
-			void setWhere(Map map) {
-				// its only one entry
-				map.each { key, value ->
-					// do for both key and value (both field names)
-					[key, value].each {
-						joinOn[joinOn.keySet().find { Table table ->
-							// find the table that has the field and doesn't have a joinOn assigned yet
-							joinOn[table] == null && table.description.keySet().contains(it)
-						}] = it // set the table to join on the field
-					}
+			return tableResults
+		}
+
+		void setWhere(Map map) {
+			// its only one entry
+			map.each { key, value ->
+				// do for both key and value (both field names)
+				[key, value].each {
+					joinOn[joinOn.keySet().find { Table table ->
+						// find the table that has the field and doesn't have a joinOn assigned yet
+						joinOn[table] == null && table.description.keySet().contains(it)
+					}] = it // set the table to join on the field
 				}
 			}
 		}
@@ -211,7 +210,7 @@ class Sql {
 				}
 				return new From(query: query)
 			} else {
-				Query.ImplicitJoinQuery newQuery = new Query.ImplicitJoinQuery(fields: query.fields)
+				ImplicitJoinQuery newQuery = new ImplicitJoinQuery(fields: query.fields)
 				newQuery.joinOn = tableNames.collectEntries { [(tables[it]): null] }
 				return new From(query: newQuery)
 			}
