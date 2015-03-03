@@ -83,17 +83,33 @@ class Sql {
 		if (tables[tableName].size == 0) {
 			return "$tableName\nEMPTY\n"
 		}
+
 		def widths = tables[tableName].description.keySet().collectEntries { field -> [field, 0] }
 		tables[tableName].each { row ->
 			tables[tableName].description.keySet().each { field ->
-				widths[field] = Math.max("${row[field]}".length(), widths[field])
+				widths[field] = Math.max("${row[field]}".length() + 2, widths[field])
 			}
 		}
 
 		int width = widths.values().sum() + widths.size() - 1
 		int padding = (widths.values().sum() - tableName.length()) / 2
-		StringBuilder builder = new StringBuilder("|${' ' * padding}$tableName${' ' * (width - padding - tableName.length())}|\n")
-		builder.append "\u0195${'\u0196' * width}\u0180\n"
+		StringBuilder builder = new StringBuilder("|${widths.values().collect { '-' * it }.join('-')}|\n")
+		builder.append "|${' ' * padding}$tableName${' ' * (width - padding - tableName.length())}|\n"
+		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
+		builder.append "|"
+		builder.append widths.collect { field, w ->
+			String.format(" %-${w - 2}s ", field)
+		}.join('|')
+		builder.append "|\n"
+		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
+		tables[tableName].each { row ->
+			builder.append '|'
+			builder.append widths.collect { field, w ->
+				String.format(" %-${w - 2}s ", row[field])
+			}.join('|')
+			builder.append "|\n"
+		}
+		builder.append "|${widths.values().collect { '-' * it }.join('+')}|\n"
 		return builder.toString()
 	}
 
@@ -206,10 +222,12 @@ class Sql {
 		List<Map> execute() { query.execute() }
 	}
 
-	//public static void main(String[] args) {
-		//Sql.createTable('book', [title: 'S', author: 'S'])
-		//Sql.createTable('author', [name: 'S', age: 'I'])
+	public static void main(String[] args) {
+		Sql.createTable('book', [title: 'S', author: 'S'])
+//		Sql.createTable('author', [name: 'S', age: 'I'])
+//
+//		println Sql.select('title', 'age').from('book', 'author').where('author', 'name').execute()
 
-		//println Sql.select('title', 'age').from('book', 'author').where('author', 'name').execute()
-	//}
+		println Sql.printTable('book')
+	}
 }
